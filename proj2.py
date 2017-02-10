@@ -30,7 +30,7 @@ print('Michigan Daily -- MOST READ\n')
 html = urlopen("https://www.michigandaily.com/", context=ctx).read()
 soup = BeautifulSoup(html, "html.parser")
 for most_read in soup.find_all(class_="panel-pane pane-mostread"):
-    for li in most_read.div.div.ol.find_all('li'):
+    for li in most_read.find_all('li'):
         if li.a:
             print(li.a.text.replace("\n", " ").strip())
         else:
@@ -44,8 +44,8 @@ print("Mark's page -- Alt tags\n")
 html = urlopen("http://newmantaylor.com/gallery.html", context=ctx).read()
 soup = BeautifulSoup(html, "html.parser")
 for img in soup.find_all('img'):
-    if 'alt' in img.attrs.keys():
-        print(img.attrs.get('alt'))
+    if img.get('alt'):
+        print(img.get('alt'))
     else:
         print('No alternative text provided!!')
 
@@ -60,16 +60,16 @@ soup = BeautifulSoup(html, "html.parser")
 i = 1
 while True:
     for a in soup.find_all('a', text="Contact Details"):
-        site_iter = urljoin(site, a.attrs.get('href'))
+        site_iter = urljoin(site, a.get('href'))
         html_iter = urlopen(site_iter, context=ctx).read()
         soup_iter = BeautifulSoup(html_iter, "html.parser")
-        for div1 in soup_iter.find_all('div', class_=re.compile("field-name-field-person-email")):
+        for div1 in soup_iter.find_all('div', class_=re.compile('field-name-field-person-email')):
             for div2 in div1.find_all('div', class_="field-item even"):
                 print(i, div2.a.text.replace("\n", " ").strip())
                 i += 1
     find = soup.find('a', title="Go to next page")
     if not find:
         break
-    site_next = urljoin(site, find.attrs.get('href'))
+    site_next = urljoin(site, find.get('href'))
     html_next = urlopen(site_next, context=ctx).read()
     soup = BeautifulSoup(html_next, "html.parser")
