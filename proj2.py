@@ -1,20 +1,16 @@
 #proj2.py
+import urllib.request
 from urllib.request import urlopen
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
-import ssl
 import re
-
-ctx = ssl.create_default_context()
-ctx.check_hostname = False
-ctx.verify_mode = ssl.CERT_NONE
 
 #### Problem 1 ####
 print('\n*********** PROBLEM 1 ***********')
 print('New York Times -- First 10 Story Headings\n')
 
 ### Your Problem 1 solution goes here
-html = urlopen("http://nytimes.com", context=ctx).read()
+html = urlopen("http://nytimes.com").read()
 soup = BeautifulSoup(html, "html.parser")
 for story_heading in soup.find_all(class_="story-heading", limit=10):
     if story_heading.a:
@@ -27,7 +23,7 @@ print('\n*********** PROBLEM 2 ***********')
 print('Michigan Daily -- MOST READ\n')
 
 ### Your Problem 2 solution goes here
-html = urlopen("https://www.michigandaily.com/", context=ctx).read()
+html = urlopen("https://www.michigandaily.com/").read()
 soup = BeautifulSoup(html, "html.parser")
 for most_read in soup.find_all(class_="panel-pane pane-mostread"):
     for li in most_read.find_all('li'):
@@ -41,7 +37,7 @@ print('\n*********** PROBLEM 3 ***********')
 print("Mark's page -- Alt tags\n")
 
 ### Your Problem 3 solution goes here
-html = urlopen("http://newmantaylor.com/gallery.html", context=ctx).read()
+html = urlopen("http://newmantaylor.com/gallery.html").read()
 soup = BeautifulSoup(html, "html.parser")
 for img in soup.find_all('img'):
     if img.get('alt'):
@@ -55,13 +51,15 @@ print("UMSI faculty directory emails\n")
 
 ### Your Problem 4 solution goes here
 site = "https://www.si.umich.edu/directory?field_person_firstname_value=&field_person_lastname_value=&rid=4"
-html = urlopen(site, context=ctx).read()
+req = urllib.request.Request(site, None, {'User-Agent': 'SI_CLASS'})
+html = urlopen(req).read()
 soup = BeautifulSoup(html, "html.parser")
 i = 1
 while True:
     for a in soup.find_all('a', text="Contact Details"):
         site_iter = urljoin(site, a.get('href'))
-        html_iter = urlopen(site_iter, context=ctx).read()
+        req_iter = urllib.request.Request(site_iter, None, {'User-Agent': 'SI_CLASS'})
+        html_iter = urlopen(req_iter).read()
         soup_iter = BeautifulSoup(html_iter, "html.parser")
         for div1 in soup_iter.find_all('div', class_=re.compile('field-name-field-person-email')):
             for div2 in div1.find_all('div', class_="field-item even"):
@@ -71,5 +69,6 @@ while True:
     if not find:
         break
     site_next = urljoin(site, find.get('href'))
-    html_next = urlopen(site_next, context=ctx).read()
+    req_next = urllib.request.Request(site_next, None, {'User-Agent': 'SI_CLASS'})
+    html_next = urlopen(req_next).read()
     soup = BeautifulSoup(html_next, "html.parser")
