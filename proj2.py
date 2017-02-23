@@ -1,5 +1,5 @@
 #proj2.py
-import urllib.request
+from urllib.request import Request
 from urllib.request import urlopen
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
@@ -40,10 +40,7 @@ print("Mark's page -- Alt tags\n")
 html = urlopen("http://newmantaylor.com/gallery.html").read()
 soup = BeautifulSoup(html, "html.parser")
 for img in soup.find_all('img'):
-    if img.get('alt'):
-        print(img.get('alt'))
-    else:
-        print('No alternative text provided!!')
+    print(img.get('alt', 'No alternative text provided!'))
 
 #### Problem 4 ####
 print('\n*********** PROBLEM 4 ***********')
@@ -51,17 +48,17 @@ print("UMSI faculty directory emails\n")
 
 ### Your Problem 4 solution goes here
 site = "https://www.si.umich.edu/directory?field_person_firstname_value=&field_person_lastname_value=&rid=4"
-req = urllib.request.Request(site, None, {'User-Agent': 'SI_CLASS'})
+req = Request(site, None, {'User-Agent': 'SI_CLASS'})
 html = urlopen(req).read()
 soup = BeautifulSoup(html, "html.parser")
 i = 1
 while True:
     for a in soup.find_all('a', text="Contact Details"):
         site_iter = urljoin(site, a.get('href'))
-        req_iter = urllib.request.Request(site_iter, None, {'User-Agent': 'SI_CLASS'})
+        req_iter = Request(site_iter, None, {'User-Agent': 'SI_CLASS'})
         html_iter = urlopen(req_iter).read()
         soup_iter = BeautifulSoup(html_iter, "html.parser")
-        for div1 in soup_iter.find_all('div', class_=re.compile('field-name-field-person-email')):
+        for div1 in soup_iter.find_all('div', class_=re.compile('person-email')):
             for div2 in div1.find_all('div', class_="field-item even"):
                 print(i, div2.a.text.replace("\n", " ").strip())
                 i += 1
@@ -69,6 +66,6 @@ while True:
     if not find:
         break
     site_next = urljoin(site, find.get('href'))
-    req_next = urllib.request.Request(site_next, None, {'User-Agent': 'SI_CLASS'})
+    req_next = Request(site_next, None, {'User-Agent': 'SI_CLASS'})
     html_next = urlopen(req_next).read()
     soup = BeautifulSoup(html_next, "html.parser")
